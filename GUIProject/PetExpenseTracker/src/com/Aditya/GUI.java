@@ -4,26 +4,31 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import org.json.*;
 
 
 public class GUI extends JFrame implements ActionListener {
     JLabel name, type, cost, title, view;
-
-    JButton submit, viewData, saveData;
+    JButton submit, viewData, saveData, deletePet, help, search;
     JTextArea viewText;
-    JTextField nameEntry, costEntry, typeEntry;
-    JPanel leftPanel, rightPanel, topPanel, bottomPanel, centrePanel;
+    JTextField nameEntry, costEntry, typeEntry, generalEntry;
+    JPanel leftPanel, rightPanel, topPanel, centrePanel, middleCentrePanel, bottomCentrePanel;
     JFrame frame = new JFrame();
+    JComboBox comboBox, SUDComboBox;
+    String[] data;
+    ArrayList<Pet> pets;
 
 
     public GUI(){
 
         super("PET EXPENSE TRACKER");
-        readCSVFile("C:\\Users\\Desktop\\Downloads\\GUIProject\\PetExpenseTracker\\src\\PetData.csv");
+        pets = readCSVFile("C:\\Users\\Desktop\\Downloads\\GUIProject\\PetExpenseTracker\\src\\PetData.csv");
+        apiAttempt();
 
-        Font font = new Font("SansSerif", Font.BOLD, 22);
         frame.setSize(800, 700);
         frame.setLayout(new BorderLayout());
         frame.setVisible(true);
@@ -33,6 +38,8 @@ public class GUI extends JFrame implements ActionListener {
         name = createText("Enter Pet Name!", new Color(91, 77, 255, 255), new Font("MV boli", Font.ITALIC, 20), false);
         cost = createText("Enter Cost!", new Color(91, 77, 255, 255), new Font("MV boli", Font.ITALIC, 20), false);
         type = createText("Enter Item!", new Color(91, 77, 255, 255), new Font("MV boli", Font.ITALIC, 20), false);
+        view = createText("View By: ", new Color(255, 145, 255), new Font ("MV boli", Font.BOLD, 20), true);
+
 
         //TEXT FIELDS
         nameEntry = new JTextField();
@@ -43,6 +50,10 @@ public class GUI extends JFrame implements ActionListener {
 
         typeEntry = new JTextField();
         typeEntry.setPreferredSize(new Dimension (120, 120));
+        
+        generalEntry = new JTextField();
+        generalEntry.setPreferredSize(new Dimension(120, 50));
+
 
 
         //---------------SUB PANELS---------------------------------------
@@ -56,6 +67,17 @@ public class GUI extends JFrame implements ActionListener {
 
         centrePanel = new JPanel();
         centrePanel.setBackground(new Color(0, 255, 166));
+        
+        middleCentrePanel = new JPanel();
+        middleCentrePanel.setLayout(new BorderLayout());
+        middleCentrePanel.setBackground(new Color(0, 255, 166));
+
+        bottomCentrePanel = new JPanel();
+        bottomCentrePanel.setLayout(new FlowLayout());
+        bottomCentrePanel.setBackground(new Color (0, 255, 166));
+        
+        rightPanel = new JPanel();
+        rightPanel.setBackground(new Color (0, 255, 166));
 
         //---------------SUB PANELS---------------------------------------
 
@@ -64,14 +86,41 @@ public class GUI extends JFrame implements ActionListener {
         submit = new JButton ("Submit" );
         submit.setBackground(Color.white);
         submit.addActionListener(this);
+       
+        deletePet = new JButton("Delete Pet");
+        deletePet.setBackground(Color.red);
+        deletePet.setPreferredSize(new Dimension(100,50)); //This is how to resize buttons
 
+        help = new JButton("Help");
+        help.setBackground(Color.green);
+        help.setPreferredSize(new Dimension(100,50));
+        
+        search = new JButton("GO!");
+        search.setBackground(new Color(11, 106, 199));
+        search.setPreferredSize(new Dimension(100, 50));
 
         viewData = new JButton ("View Data");
+        viewData.setPreferredSize(new Dimension(100,50));
+        viewData.setBackground(Color.yellow);
 
-        viewData.setBackground(Color.white);
         saveData = new JButton ("Save Data");
-        saveData.setBackground(Color.white);
+        saveData.setPreferredSize(new Dimension(100,50));
+        saveData.setBackground(Color.yellow);
         //-----------------BUTTONS---------------------------------------
+        
+        
+        
+        
+        
+        //------------------COMBO BOXES----------------------------------
+        String[] messages = {"Name (A to Z)", "Cost (Low to High)", "Cost (High to Low)"};
+        comboBox = new JComboBox(messages);
+        comboBox.setBackground(Color.white);
+
+        String[] searchDeleteUpdateOptions = {"Search Pet", "Delete Pet", "Update Pet"};
+        SUDComboBox = new JComboBox(searchDeleteUpdateOptions);
+        SUDComboBox.setBackground(Color.white);
+        //------------------COMBO BOXES----------------------------------
 
 
         //PANEL LAYOUTS
@@ -85,15 +134,32 @@ public class GUI extends JFrame implements ActionListener {
         leftPanel.add(typeEntry);
 
 
-        topPanel.add(title);
 
-        centrePanel.setLayout(new FlowLayout());
-        centrePanel.add(viewData);
-        centrePanel.add(saveData);
+        topPanel.add(title);
+        
+        centrePanel.setLayout(new BorderLayout());
+
+        middleCentrePanel.setLayout(new FlowLayout());
+        middleCentrePanel.add(view);
+        middleCentrePanel.add(comboBox);
+        middleCentrePanel.add(viewData);
+        middleCentrePanel.add(saveData);
+
+        bottomCentrePanel.add(SUDComboBox);
+        bottomCentrePanel.add(search);
+        bottomCentrePanel.add(generalEntry);
+
+
+        
+        rightPanel.setLayout(new GridLayout(14,100,70,10));
+        rightPanel.add(help);
 
         frame.add(centrePanel, BorderLayout.CENTER);
+        centrePanel.add(middleCentrePanel, BorderLayout.NORTH);
+        centrePanel.add(bottomCentrePanel, BorderLayout.CENTER);
         frame.add(leftPanel, BorderLayout.WEST);
         frame.add(topPanel, BorderLayout.NORTH);
+        frame.add(rightPanel, BorderLayout.EAST);
     }
 
     @Override
@@ -110,33 +176,50 @@ public class GUI extends JFrame implements ActionListener {
             nameEntry.setText("");
             costEntry.setText("");
             typeEntry.setText("");
-
         }
     }
 
+    /*************************************************************************************
+     METHOD:  addRecord()
+     @Param: Pet pet <Br>
+        Pet is passed to be added to CSV file
+     @Param: String fileName <Br>
+        Pet is added to accordingly based on file
+     @Purpose: Adds new pets to CSV file database
+     ***********************************************************************************/
     private void addRecord(Pet pet, String filename){
         try{
             FileWriter fw = new FileWriter(filename, true); //true just means append data
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter pw = new PrintWriter(bw);
-            pw.println(pet.name + "," + pet.type + "," + pet.cost);
+            int n = Integer.parseInt(data[0]);
+            pw.println(n+1+ ","+pet.name + "," + pet.type + "," + pet.cost);
             pw.flush(); //makes sure all data is written
             pw.close(); //closes file
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void readCSVFile(String filename){
+    /*************************************************************************************
+     METHOD:  reasdCSVFile()
+     @Param: String fileName <Br>
+        User passes filename to be read
+     @Purpose: reads CSV file, converting data into objects stored in arraylist
+     ***********************************************************************************/
+    private ArrayList<Pet> readCSVFile(String fileName){
+        ArrayList<Pet> pets = new ArrayList<>();
         try{
-            BufferedReader reader = new BufferedReader(new FileReader(filename));
+            BufferedReader reader = new BufferedReader(new FileReader(fileName));
             String line = "";
             while ((line = reader.readLine()) != null)
             {
-                String[] data = line.split(",");
+                data = line.split(",");
+                if (!data[1].equals("Name") && !data[2].equals("Item") && !data[3].equals("Cost"))
+                    pets.add(new Pet(data[1], data[2], Double.parseDouble(data[3])));
                 for (String i:data)
-                    System.out.printf("%-10s", i);
+                    System.out.printf("%-15s", i);
+                System.out.println(Arrays.toString(data));
             }
                 System.out.println();
             reader.close();
@@ -145,7 +228,7 @@ public class GUI extends JFrame implements ActionListener {
             System.out.println("Something went wrong when reading data file");
             e.printStackTrace();
         }
-
+        return pets;
     }
 
 
@@ -191,5 +274,21 @@ public class GUI extends JFrame implements ActionListener {
         text.setForeground(colorText);
         text.setFont(font);
         return text;
+    }
+
+    private void apiAttempt()  {
+        try {
+            String key = "5f7a027211e426d583d92fb83dcf2c29";
+            URL url = new URL("http://api.openweathermap.org/geo/1.0/direct?q={Toronto},{+1}&appid=5f7a027211e426d583d92fb83dcf2c29");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.connect();
+            int resp = conn.getResponseCode();
+            System.out.println(resp);
+            System.out.println(conn.getResponseMessage());
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
