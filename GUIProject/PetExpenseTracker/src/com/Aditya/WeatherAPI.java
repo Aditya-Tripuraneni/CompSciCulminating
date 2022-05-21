@@ -7,7 +7,7 @@ import java.net.URL;
 import java.util.Scanner;
 
 public class WeatherAPI {
-    private final String KEY = "5f7a027211e426d583d92fb83dcf2c29";
+    private final String KEY = "your token goes here lol";
     private String longtitude, lattitude, countryCode, region;
     private double temperature;
 
