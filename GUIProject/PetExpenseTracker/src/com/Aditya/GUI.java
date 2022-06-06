@@ -1,4 +1,5 @@
 package com.Aditya;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,8 +9,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 
+
+/************************************************************************
+ * The GUI class
+ * This class contains all code in order for GUI to run smoothly
+ * Once class is instantiated, app starts with call to init method.
+ *************************************************************************/
 public class GUI extends JFrame implements ActionListener {
-    String filepath = "C:\\Users\\Desktop\\Downloads\\GUIProject\\PetExpenseTracker\\src\\PetData.csv";
+    String filepath = "C:\\Users\\Admin\\Downloads\\GUIProject-20220510T140826Z-001\\GUIProject\\PetExpenseTracker\\src\\PetData.csv";
     JLabel name, type, cost, title, view, text, location, countryCode, weather, id, enterID;
     JPanel pane = (JPanel)this.getContentPane();
     JButton submit, viewData, deletePet, help, search, weatherSubmit, settings;
@@ -22,13 +29,10 @@ public class GUI extends JFrame implements ActionListener {
     ArrayList<Pet> pets = readCSVFile(filepath);
     WeatherAPI weatherReport = new WeatherAPI();
 
-
     public GUI(){
         super("PET EXPENSE TRACKER");
 
-
-
-        //TEXT
+        //---------------------------------------------------TEXT-----------------------------------------------------------------------------------------------------------
         title = createText("Welcome to the Pet Expense Tracker!", new Color(34, 255, 0), new Font("MV boli", Font.BOLD, 30), true);
         name = createText("Enter Pet Name!", new Color(91, 77, 255, 255), new Font("MV boli", Font.ITALIC, 20), false);
         cost = createText("Enter Cost!", new Color(91, 77, 255, 255), new Font("MV boli", Font.ITALIC, 20), false);
@@ -40,9 +44,9 @@ public class GUI extends JFrame implements ActionListener {
         weather = createText("Temperature in " + weatherReport.getRegion()+ " " + String.format("%.2f", weatherReport.getTemperature())+"C",
                 new Color(246, 2,2), new Font("MV boli", Font.CENTER_BASELINE, 20), false);
         enterID = createText("Enter Pet ID: ", new Color(91, 77, 255, 255), new Font("MV boli", Font.BOLD, 20), false);
+        //---------------------------------------------------TEXT-----------------------------------------------------------------------------------------------------------
 
-
-        //TEXT FIELDS
+        //-------------------------TEXT FIELDS---------------------------------------
         nameEntry = new JTextField();
         nameEntry.setPreferredSize(new Dimension (120,120));
 
@@ -63,8 +67,7 @@ public class GUI extends JFrame implements ActionListener {
 
         IDEntry = new JTextField();
         IDEntry.setPreferredSize(new Dimension(120, 50));
-
-
+        //-------------------------TEXT FIELDS---------------------------------------
 
         //---------------SUB PANELS---------------------------------------
         leftPanel = new JPanel();
@@ -92,9 +95,7 @@ public class GUI extends JFrame implements ActionListener {
 
         rightPanel = new JPanel();
         rightPanel.setBackground(new Color (0, 255, 166));
-
         //---------------SUB PANELS---------------------------------------
-
 
         //-----------------BUTTONS---------------------------------------
         submit = new JButton ("Submit" );
@@ -103,7 +104,7 @@ public class GUI extends JFrame implements ActionListener {
 
         deletePet = new JButton("Delete Pet");
         deletePet.setBackground(Color.red);
-        deletePet.setPreferredSize(new Dimension(100,50)); //This is how to resize buttons
+        deletePet.setPreferredSize(new Dimension(100,50));
 
         help = new JButton("Help");
         help.setBackground(Color.green);
@@ -131,8 +132,6 @@ public class GUI extends JFrame implements ActionListener {
         weatherSubmit.addActionListener(this);
         //-----------------BUTTONS---------------------------------------
 
-
-
         //------------------COMBO BOXES----------------------------------
         comboBox = new JComboBox(sort);
         comboBox.setBackground(Color.white);
@@ -142,8 +141,7 @@ public class GUI extends JFrame implements ActionListener {
         SUDComboBox.setBackground(Color.white);
         //------------------COMBO BOXES----------------------------------
 
-
-        //PANEL LAYOUTS
+        //----------------------PANEL LAYOUTS------------------------------
         leftPanel.setLayout(new GridLayout(9,1,5,5));
         leftPanel.add(submit);
         leftPanel.add(name);
@@ -190,11 +188,13 @@ public class GUI extends JFrame implements ActionListener {
         pane.add(leftPanel, BorderLayout.WEST);
         pane.add(topPanel, BorderLayout.NORTH);
         pane.add(rightPanel, BorderLayout.EAST);
+        //----------------------PANEL LAYOUTS------------------------------
 
         setSize(800, 700);
         pack();
         setVisible(true);
     }
+
 
     @Override
     public void actionPerformed(ActionEvent e)
@@ -203,13 +203,13 @@ public class GUI extends JFrame implements ActionListener {
         {
             if (verifyTextToDouble(costEntry.getText()) && verifyInteger(IDEntry.getText()))
             {
-
                 if(!checkIDExistance(Integer.parseInt(IDEntry.getText())))
                 {
                     JOptionPane.showMessageDialog(pane, "Data submitted successfully");
                     String name = nameEntry.getText();
                     String type = typeEntry.getText();
                     addRecord(new Pet(name , type, Double.parseDouble(costEntry.getText()), Integer.parseInt(IDEntry.getText())), filepath);
+                    pets.add(new Pet(name , type, Double.parseDouble(costEntry.getText()), Integer.parseInt(IDEntry.getText())));
                 }
                 else
                     JOptionPane.showMessageDialog(null, "Please make a different ID, this one is in use!", "Alert" , JOptionPane.INFORMATION_MESSAGE);
@@ -229,11 +229,11 @@ public class GUI extends JFrame implements ActionListener {
             switch (selected)
             {
                 case "Name (A to Z)" -> mergeName(pets);
-                case "Cost (Low to High)" -> mergeLow(pets);
-                case "Cost (High to Low)" -> mergeHigh(pets);
+                case "Cost (Low to High)" -> mergeLowByCost(pets);
+                case "Cost (High to Low)" -> mergeHighByCost(pets);
                 case "ID (Low to High)" -> mergeSortByID(pets);
             }
-           displayPetData();
+            displayPetData();
         }
         else if (e.getSource() == weatherSubmit)
         {
@@ -253,21 +253,28 @@ public class GUI extends JFrame implements ActionListener {
                     Pet displayPet = searchPet(Integer.parseInt(generalEntry.getText()));
 
                     if (displayPet != null)
-                        JOptionPane.showMessageDialog(null, "Name: " + displayPet.name + " Item: " + displayPet.type + " Cost: $" + displayPet.cost, "Alert", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Name: " + displayPet.name + " \nItem: " + displayPet.type + "\nCost: $" + displayPet.cost, "Alert", JOptionPane.INFORMATION_MESSAGE);
                     else
                         JOptionPane.showMessageDialog(null, "Could not find pet! Make sure ID exists!", "Alert", JOptionPane.INFORMATION_MESSAGE);
                 }
                 if (selected.equals("Delete Pet"))
                 {
                     if (checkIDExistance(Integer.parseInt(generalEntry.getText())))
+                    {
                         deletePet(generalEntry.getText(), filepath);
+                        deletePet(Integer.parseInt(generalEntry.getText()));
+                        JOptionPane.showMessageDialog(null, "Data successfully deleted", "Alert", JOptionPane.INFORMATION_MESSAGE);
+
+                    }
+
                     else
-                        JOptionPane.showMessageDialog(null, "Could not find ID to delete! Make sure the ID exists!", "Alert", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Could not find ID to delete! Make sure the ID exists!", "Alert", JOptionPane.OK_OPTION);
                 }
 
                 if (selected.equals("Update Pet"))
-                    if (checkIDExistance(Integer.parseInt(generalEntry.getText())))
+                    if (checkIDExistance(Integer.parseInt(generalEntry.getText()))){
                         displayUpdatedPet();
+                    }
             }
             else
                 JOptionPane.showMessageDialog(null, "Please make sure you enter a number!", "Alert", JOptionPane.INFORMATION_MESSAGE);
@@ -344,6 +351,7 @@ public class GUI extends JFrame implements ActionListener {
             {
                 Pet updatedPet = new Pet(updatedName.getText(), updatedType.getText(), Double.parseDouble(updatedCost.getText()), Integer.parseInt(updatedID.getText()));
                 updatePet(filepath, generalEntry.getText(), updatedPet);
+                updatePet(updatedPet, Integer.parseInt(generalEntry.getText()));
             }
             else
                 JOptionPane.showMessageDialog(null, "Make sure your ID was an Integer, and a number was entered for cost!", "Alert", JOptionPane.INFORMATION_MESSAGE);
@@ -353,7 +361,8 @@ public class GUI extends JFrame implements ActionListener {
 
     /********************************************************************
      METHOD:  mergeName()
-     @Param: ArrayList<Pet> pets <Br>
+     @Param: ArrayList<Pet> pets <BR>
+     Array list of pets to be sorted
      @Purpose: Sorts pets by name in alphabetical order
      *********************************************************************/
     private void mergeName(ArrayList<Pet> pets)
@@ -395,11 +404,12 @@ public class GUI extends JFrame implements ActionListener {
 
 
     /********************************************************************
-     METHOD:  mergeLow()
-     @Param: ArrayList<Pet> pets <Br>
+     METHOD:  mergeLowByCost()
+     @Param: ArrayList<Pet> pets <BR>
+     Array list of pets to be sorted
      @Purpose: sorts pets by cost in increasing order
      *********************************************************************/
-    private void mergeLow(ArrayList<Pet> pets)
+    private void mergeLowByCost(ArrayList<Pet> pets)
     {
         if (pets.size() > 1)
         {
@@ -414,8 +424,8 @@ public class GUI extends JFrame implements ActionListener {
                     secondHalf.add(pets.get(i));
             }
 
-            mergeLow(firstHalf);
-            mergeLow(secondHalf);
+            mergeLowByCost(firstHalf);
+            mergeLowByCost(secondHalf);
 
             int l = 0, r = 0, i = 0;
 
@@ -440,15 +450,16 @@ public class GUI extends JFrame implements ActionListener {
 
     /********************************************************************
      METHOD:  mergeSortByID()
-     @Param: ArrayList<Pet> pets <Br>
+     @Param: ArrayList<Pet> pets <BR>
+     Array list of pets to be sorted
      @Purpose: sorts pets by ID, in increasing order
      *********************************************************************/
     private void mergeSortByID(ArrayList<Pet> pets)
     {
         if (pets.size() > 1)
         {
-            ArrayList<Pet> firstHalf = new ArrayList<Pet> (pets.size()/2);
-            ArrayList<Pet> secondHalf = new ArrayList<Pet>(pets.size() - pets.size()/2);
+            ArrayList<Pet> firstHalf = new ArrayList<>(pets.size() / 2);
+            ArrayList<Pet> secondHalf = new ArrayList<>(pets.size() - pets.size() / 2);
 
             for(int i = 0; i < pets.size(); i ++)
             {
@@ -483,16 +494,17 @@ public class GUI extends JFrame implements ActionListener {
 
 
     /********************************************************************
-     METHOD:  mergeHigh()
-     @Param: ArrayList<Pet> pets <Br>
+     METHOD:  mergeHighByCost()
+     @Param: ArrayList<Pet> pets <BR>
+     Array list of pets to be sorted
      @Purpose: sorts pets by cost in decreasing order
      *********************************************************************/
-    private void mergeHigh(ArrayList<Pet> pets)
+    private void mergeHighByCost(ArrayList<Pet> pets)
     {
         if (pets.size() > 1)
         {
-            ArrayList<Pet> firstHalf = new ArrayList<Pet> (pets.size()/2);
-            ArrayList<Pet> secondHalf = new ArrayList<Pet>(pets.size() - pets.size()/2);
+            ArrayList<Pet> firstHalf = new ArrayList<>(pets.size() / 2);
+            ArrayList<Pet> secondHalf = new ArrayList<>(pets.size() - pets.size() / 2);
 
             for(int i = 0; i < pets.size(); i ++)
             {
@@ -502,11 +514,10 @@ public class GUI extends JFrame implements ActionListener {
                     secondHalf.add(pets.get(i));
             }
 
-            mergeHigh(firstHalf);
-            mergeHigh(secondHalf);
+            mergeHighByCost(firstHalf);
+            mergeHighByCost(secondHalf);
 
             int l = 0, r = 0, i = 0;
-
 
             while (l < firstHalf.size() && r < secondHalf.size())
             {
@@ -529,37 +540,37 @@ public class GUI extends JFrame implements ActionListener {
 
     /*************************************************************************************
      METHOD:  addRecord()
-     @Param: Pet pet <Br>
+     @Param: Pet pet <BR>
      Pet is passed to be added to CSV file
-     @Param: String fileName <Br>
+     @Param: String fileName <BR>
      Pet is added to accordingly based on file
      @Purpose: Adds new pets to CSV file database
      ***********************************************************************************/
     private void addRecord(Pet pet, String filename)
     {
-        try{
-            FileWriter fw = new FileWriter(filename, true); //true just means append data
+        try
+        {
+            FileWriter fw = new FileWriter(filename, true);
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter pw = new PrintWriter(bw);
             pw.println(pet.id+ ","+pet.name.toUpperCase() + "," + pet.type + "," + pet.cost);
             pw.flush(); //makes sure all data is written
-            pw.close(); //closes file
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            pw.close();
+        } catch (IOException e) {e.printStackTrace();}
     }
 
 
     /*************************************************************************************
      METHOD:  reasdCSVFile()
-     @Param: String fileName <Br>
+     @Param: String fileName <BR>
      User passes filename to be read
-     @Purpose: reads CSV file, converting data into objects stored in arraylist
+     @Purpose: Reads CSV file, converting data into objects stored in arraylist
      ***********************************************************************************/
-    private  ArrayList<Pet> readCSVFile(String filename){
-        ArrayList<Pet> petsData = new ArrayList<Pet>();
-        try{
+    private  ArrayList<Pet> readCSVFile(String filename)
+    {
+        ArrayList<Pet> petsData = new ArrayList<>();
+        try
+        {
             BufferedReader reader = new BufferedReader(new FileReader(filename));
             String line = "";
             while ((line = reader.readLine()) != null)
@@ -573,7 +584,8 @@ public class GUI extends JFrame implements ActionListener {
             System.out.println(data);
             reader.close();
         }
-        catch(Exception e){
+        catch(Exception e)
+        {
             System.out.println("Something went wrong when reading data file");
             e.printStackTrace();
         }
@@ -581,12 +593,43 @@ public class GUI extends JFrame implements ActionListener {
     }
 
 
+
+    /********************************************************************
+     METHOD:  deletePet()
+     @Param: int id <Br>
+        Id to be deleted from array list
+     @Purpose: Deletes pet containing id from array list
+     *********************************************************************/
+    private void deletePet(int id)
+    {
+        mergeSortByID(pets);
+        int index = searchPetIndex(id);
+        pets.remove(index);
+    }
+
+
+    /********************************************************************
+     METHOD:  updatePet()
+     @Param: Pet updatedPet <Br>
+        New pet with updated data
+     @Param: int id <Br>
+        Id of pet to be updated
+     @Purpose: Updates the current pet searched from id, replaces with new pet
+     *********************************************************************/
+    private void updatePet(Pet updatedPet, int id)
+    {
+        mergeSortByID(pets);
+        int index = searchPetIndex(id);
+        pets.set(index, updatedPet);
+    }
+
+
     /*************************************************************************************
      METHOD:  deletePet()
-     @Param: String fileName <Br>
-        User passes filename to be read
-     @ParamL String id <Br>
-        ID of pet
+     @Param: String fileName <BR>
+     User passes filename to be read
+     @Param: String id <BR>
+     ID of pet
      @Purpose:  Deletes the pet, by ID placed.
      ***********************************************************************************/
     private void deletePet(String id, String filepath)
@@ -595,7 +638,7 @@ public class GUI extends JFrame implements ActionListener {
         File oldFile = new File(filepath);
         File newFile = new File(tempFile);
         String currentLine;
-        String data[];
+        String[] data;
 
         try{
             FileWriter fw = new FileWriter(tempFile, true);
@@ -626,23 +669,25 @@ public class GUI extends JFrame implements ActionListener {
         }
     }
 
+
     /********************************************************************
      METHOD:  updatePet()
-     @Param: String filepath  <Br>
+     @Param: String filepath  <BR>
      filepath of record to be changed
-     @Param: String id <Br>
+     @Param: String id <BR>
      Pet's ID
-     @Param: Pet updatedPet <Br>
+     @Param: Pet updatedPet <BR>
      new pet to update old pet
-     @Purpose:  updates pet if user wants to change information
+     @Purpose:  Updates pet if user wants to change information
      *********************************************************************/
-    private void updatePet(String filepath, String id, Pet updatedPet){
+    private void updatePet(String filepath, String id, Pet updatedPet)
+    {
         String tempFile = "temp.txt";
         File oldFile = new File(filepath);
         File newFile = new File(tempFile);
 
         String currentLine;
-        String data[];
+        String[] data;
         try{
             FileWriter fw = new FileWriter(tempFile, true);
             BufferedWriter bw = new BufferedWriter(fw);
@@ -677,10 +722,9 @@ public class GUI extends JFrame implements ActionListener {
     }
 
 
-
     /*************************************************************************************
      METHOD:  verifyTextToDouble()
-     @Param: String field <Br>
+     @Param: String field <BR>
      Text to verify is passed
      @Purpose: Checks if costEntry is valid data type
      ***********************************************************************************/
@@ -700,8 +744,8 @@ public class GUI extends JFrame implements ActionListener {
 
     /*************************************************************************************
      METHOD:  verifyInteger()
-     @Param: String field <Br>
-
+     @Param: String field <BR>
+     String value user enters is passed
      @Purpose: Verifies if user enters integer
      ***********************************************************************************/
     private boolean verifyInteger(String field){
@@ -722,11 +766,12 @@ public class GUI extends JFrame implements ActionListener {
 
     /*************************************************************************************
      METHOD:  searchPet()
-     @Param: int id <Br>
-        User passes id of pet to be read
-     @Purpose: searches for specific pet and returns the data of pet
+     @Param: int id <BR>
+     User passes id of pet to be read
+     @Purpose: Searches for specific pet and returns the data of pet
      ***********************************************************************************/
-    private Pet searchPet(int id){ //ID IS WHAT THE VALUE IS WHAT WE WANT TO FIND
+    private Pet searchPet(int id)
+    {
         mergeSortByID(pets);
 
         int left = 0;
@@ -749,10 +794,35 @@ public class GUI extends JFrame implements ActionListener {
         return null;
     }
 
+    private int searchPetIndex(int targetID)
+    {
+        mergeSortByID(pets);
+
+        int left = 0;
+        int right = pets.size() - 1;
+
+        while (left <= right)
+        {
+            int midIndex = (left + right)/2;
+            int midValue = pets.get(midIndex).id;
+
+            if (midValue == targetID){
+                System.out.println("PET FOUND HERE IS URE DATA: " + pets.get(midIndex));
+                return midIndex;
+            }
+            else if (midValue > targetID)
+                right = midIndex -1;
+            else
+                left = midIndex + 1;
+        }
+        return -1;
+    }
+
 
     /********************************************************************
      METHOD:  checkIDExistance()
-     @Param: int id <Br>
+     @Param: int id <BR>
+     ID of pet
      @Purpose: checks for duplicate id when user creates ID
      *********************************************************************/
     private boolean checkIDExistance(int id ){
@@ -779,13 +849,13 @@ public class GUI extends JFrame implements ActionListener {
 
     /*************************************************************************************
      METHOD:  createText()
-     @Param: String nameOFText <Br>
+     @Param: String nameOFText <BR>
      Enter text you want
-     @Param: Color colorText <Br>
+     @Param: Color colorText <BR>
      Object Color is passed in with RGB values desired
-     @Param: Font font
+     @Param: Font font <BR>
      Font object is passed, user picks font, customized text and size
-     @Param: boolean aligned
+     @Param: boolean aligned <BR>
      If set to true, text is aligned else text is not aligned
      @Purpose: Used to create text on GUI without writing multiple lines of code.
      ***********************************************************************************/
@@ -801,7 +871,4 @@ public class GUI extends JFrame implements ActionListener {
         text.setFont(font);
         return text;
     }
-
-
 }
-

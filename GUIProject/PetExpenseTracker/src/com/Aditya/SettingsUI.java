@@ -7,16 +7,22 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+
+/*******************************************************************************************************
+ * The SettingsUI class
+ * This class contains all code in order for SettingsUI to run smoothly
+ * Once opened, users can change their background color of pet expense tracker
+ *******************************************************************************************************/
 public class SettingsUI extends JFrame implements ActionListener, ChangeListener {
     private final JSlider rSlider, gSlider, bSlider;
     private final JLabel red, blue, green, explain;
+    //red green blue colors
     private int r,g,b;
     private final JButton change;
     private Font font = new Font("SansSerif", Font.BOLD, 22);
 
-
-
-    public SettingsUI(){
+    public SettingsUI()
+    {
         super("Settings");
 
         //Labels
@@ -28,8 +34,6 @@ public class SettingsUI extends JFrame implements ActionListener, ChangeListener
         //BUTTONS
         change = new JButton("Change BG color!");
         change.addActionListener(this);
-
-
 
         //-------------------------SLIDERS--------------------------------------------------
         rSlider = new JSlider(0,255);
@@ -63,8 +67,6 @@ public class SettingsUI extends JFrame implements ActionListener, ChangeListener
         bSlider.addChangeListener(this);
         //-------------------------SLIDERS--------------------------------------------------
 
-
-
         JPanel pane = (JPanel) this.getContentPane();
         pane.setLayout(new GridLayout(9,2));
         pane.add(explain);
@@ -81,10 +83,13 @@ public class SettingsUI extends JFrame implements ActionListener, ChangeListener
         setVisible(true);
     }
 
+
     @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == change){
-            System.out.println("Something has happpened!");
+    public void actionPerformed(ActionEvent e)
+    {
+        if (e.getSource() == change)
+        {
+            System.out.println("Something has happened!");
             r = rSlider.getValue();
             b = bSlider.getValue();
             g = gSlider.getValue();
@@ -94,8 +99,10 @@ public class SettingsUI extends JFrame implements ActionListener, ChangeListener
         }
     }
 
+
     @Override
-    public void stateChanged(ChangeEvent e) {
+    public void stateChanged(ChangeEvent e)
+    {
         red.setText("R" + rSlider.getValue());
         green.setText("G" + gSlider.getValue());
         blue.setText("B" + bSlider.getValue());

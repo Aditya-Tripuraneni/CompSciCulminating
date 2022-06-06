@@ -1,32 +1,51 @@
 package com.Aditya;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import javax.swing.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
 
+
+
+/*******************************************************************************************************
+ * The WeatherAPI class
+ * This class contains all code in order for weatherAPI to run smoothly
+ * Once class is instantiated, default data is presented.
+ * Once token is authorized from server, requests are made back and forth between client and server
+ *******************************************************************************************************/
 public class WeatherAPI {
-    private final String KEY = "your token goes here lol";
-    private String longtitude, lattitude, countryCode, region;
+    private final String KEY = "5f7a027211e426d583d92fb83dcf2c29";
+    private String longitude, latitude, countryCode, region;
     private double temperature;
 
-    public WeatherAPI(String region, String countryCode){
+    public WeatherAPI(String region, String countryCode)
+    {
         this.region = region;
         this.countryCode = countryCode;
         getRegionCoordinates();
         getCityInfo();
     }
 
-    public WeatherAPI(){
+    //default assuming user from Toronto
+    public WeatherAPI()
+    {
         this("Toronto", "+1");
         getRegionCoordinates();
         getCityInfo();
     }
 
+
+    /********************************************************************
+     METHOD:  getRegionCoordinates()
+     @Purpose: Gets longitude & latitude of city specified
+     *********************************************************************/
     private void getRegionCoordinates()
     {
-        try {
+        try
+        {
             URL url = new URL("http://api.openweathermap.org/geo/1.0/direct?q=" + region + "," + countryCode + "&appid=" + KEY);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -48,19 +67,28 @@ public class WeatherAPI {
                 JSONArray data = (JSONArray) parse.parse(String.valueOf(stringInfo));
 
                 JSONObject city = (JSONObject) data.get(0);
-                longtitude= city.get("lon").toString();
-                lattitude = city.get("lat").toString();
-                System.out.println("Longtitude: " + longtitude + " lattitude" + lattitude);
+                longitude = city.get("lon").toString();
+                latitude = city.get("lat").toString();
+                System.out.println(city.toJSONString());
+                System.out.println("Longitude: " + longitude + " latitude" + latitude);
             }
+            else
+                JOptionPane.showMessageDialog(null,"Could not find weather! Please makes sure you enter a valid city & country code is correct!", "Alert", JOptionPane.INFORMATION_MESSAGE);
+
         }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+        catch (Exception e){e.printStackTrace();}
     }
 
-    private  void getCityInfo(){
-        try {
-            URL url2 = new URL("https://api.openweathermap.org/data/2.5/weather?lat=" + lattitude + "&lon=" + longtitude + "&appid=" + KEY);
+
+    /********************************************************************
+     METHOD:  getCityInfo()
+     @Purpose: Gets temperature from city
+     *********************************************************************/
+    private void getCityInfo()
+    {
+        try
+        {
+            URL url2 = new URL("https://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=" + KEY);
             HttpURLConnection connection = (HttpURLConnection) url2.openConnection();
             connection.setRequestMethod("GET");
             connection.connect();
@@ -84,32 +112,17 @@ public class WeatherAPI {
                 JSONObject o = (JSONObject) parser.parse(second.toJSONString());
                 String stringTemp = o.get("temp").toString();
                 this.temperature = Double.parseDouble(stringTemp) - 273.15;
-
                 System.out.println("TEMPERATURE IS FROM WEATHER API FILE " + String.format("%.2f ", temperature));
             }
         }
-        catch (Exception e ){
-            e.printStackTrace();
-        }
+        catch (Exception e ){e.printStackTrace();}
     }
+
 
     public double getTemperature(){
         return temperature;
     }
 
-    public String getCountryCode(){
-        return countryCode;
-    }
 
-    public String getRegion(){
-        return region;
-    }
-
-    public String getLongtitude(){
-        return longtitude;
-    }
-
-    public String getLattitude(){
-        return lattitude;
-    }
+    public String getRegion(){return region;}
 }
