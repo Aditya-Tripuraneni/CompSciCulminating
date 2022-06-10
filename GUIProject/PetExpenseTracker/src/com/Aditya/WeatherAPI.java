@@ -17,7 +17,7 @@ import java.util.Scanner;
  * Once token is authorized from server, requests are made back and forth between client and server
  *******************************************************************************************************/
 public class WeatherAPI {
-    private final String KEY = "5f7a027211e426d583d92fb83dcf2c29";
+    private final String KEY = "your key goes here lol";
     private String longitude, latitude, countryCode, region;
     private double temperature;
 
