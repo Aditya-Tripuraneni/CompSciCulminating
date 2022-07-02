@@ -11,11 +11,11 @@ public class Main {
     private static final long serialVersionUID = 1L;
     /***********************************************************
      * main method <BR>
-     *     Instantiate Pacman class and calls init method
+     *     Instantiate GUI class and calls init method
      * @Param: String[] args
      ***********************************************************/
     public static void main(String[] args) {
-        GUI g = new GUI();
-        g.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      GUI g = new GUI();
+      g.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }
