@@ -21,5 +21,5 @@ public class Pet{
 
     public String toString() {
         return this.name + " " + this.type + " " + this.cost + " " + this.id;
-    }
+    } 
 }
