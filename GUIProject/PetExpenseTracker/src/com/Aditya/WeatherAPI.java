@@ -17,7 +17,7 @@ import java.util.Scanner;
  * Once token is authorized from server, requests are made back and forth between client and server
  *******************************************************************************************************/
 public class WeatherAPI {
-    private final String KEY = "your key goes here lol";
+    private final String KEY = "5f7a027211e426d583d92fb83dcf2c29";
     private String longitude, latitude, countryCode, region;
     private double temperature;
 
@@ -29,19 +29,19 @@ public class WeatherAPI {
         getCityInfo();
     }
 
-    //default assuming user from Toronto
+
     public WeatherAPI()
     {
-        this("Toronto", "+1");
+        this("Toronto", "+1"); //default assuming user from Toronto
         getRegionCoordinates();
         getCityInfo();
     }
 
 
     /********************************************************************
-     METHOD:  getRegionCoordinates()
-     @Purpose: Gets longitude & latitude of city specified
-     *********************************************************************/
+    * METHOD:  getRegionCoordinates()
+    * @Purpose: Gets longitude & latitude of city specified
+    *********************************************************************/
     private void getRegionCoordinates()
     {
         try
@@ -81,9 +81,9 @@ public class WeatherAPI {
 
 
     /********************************************************************
-     METHOD:  getCityInfo()
-     @Purpose: Gets temperature from city
-     *********************************************************************/
+    * METHOD:  getCityInfo()
+    * @Purpose: Gets info from city
+    **********************************************************************/
     private void getCityInfo()
     {
         try
@@ -119,10 +119,18 @@ public class WeatherAPI {
     }
 
 
+    /********************************************************************
+     * METHOD:  getTemperature()
+     * @Purpose: Gets temperature from city
+     **********************************************************************/
     public double getTemperature(){
         return temperature;
     }
 
 
+    /********************************************************************
+     * METHOD:  getRegion()
+     * @Purpose: Gets region from city
+     **********************************************************************/
     public String getRegion(){return region;}
 }
