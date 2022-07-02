@@ -25,15 +25,18 @@ public class SettingsUI extends JFrame implements ActionListener, ChangeListener
     {
         super("Settings");
 
-        //Labels
+        //-------------------------LABELS-------------------------------------------------------------------------------------------------
         red = GUI.createText("Red", new Color(169, 25, 25), font, true);
         blue =  GUI.createText("Blue", new Color(0, 124, 241), font, true);
         green =  GUI.createText("Green", new Color(34, 255, 0), font, true);
         explain =  GUI.createText("Change your background color!", new Color(255, 145, 255), font, true);
+        //-------------------------LABELS-------------------------------------------------------------------------------------------------
 
-        //BUTTONS
+        //-------------------------BUTTONS--------------------------------------------------
         change = new JButton("Change BG color!");
+        change.setBackground(new Color(114, 107, 107));
         change.addActionListener(this);
+        //-------------------------BUTTONS--------------------------------------------------
 
         //-------------------------SLIDERS--------------------------------------------------
         rSlider = new JSlider(0,255);
@@ -106,6 +109,5 @@ public class SettingsUI extends JFrame implements ActionListener, ChangeListener
         red.setText("R" + rSlider.getValue());
         green.setText("G" + gSlider.getValue());
         blue.setText("B" + bSlider.getValue());
-
     }
 }
